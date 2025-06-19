@@ -1,6 +1,7 @@
 # python -m src.test_all_methods.eval_pdb_outputset
 
 import os
+import argparse
 
 from biopandas.pdb import PandasPdb
 import numpy as np
@@ -10,6 +11,16 @@ import torch
 
 from src.utils.eval import Meter_Unbound_Bound
 import scipy.spatial as spa
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--method_name', type=str, choices=['deepinter', 'smp'], default="none", help="the name of method")
+    parser.add_argument('--dataset', type=str, choices=['dips_het'], default="none", help="the name of dataset")
+    parser.add_argument('--data_frac', type=float, default="none", help="data fraction")
+
+    config_args = parser.parse_args()
+
+    return config_args
 
 
 def get_CA_coords(pdb_file):
@@ -43,54 +54,13 @@ def compute_all_test_rmsd(dataset, method, data_frac=None):
     all_files = []
     for file in tqdm(pdb_files):
 
-        ######## ATTRACT EVAL ###########
-        if method == 'attract':
-            if not file.endswith('_l_b_ATTRACT.pdb'):
-                continue
-            ll = len('_l_b_ATTRACT.pdb')
-            ligand_model_file = os.path.join(input_dir, file[:-ll] + '_l_b' + '_ATTRACT.pdb')
-            ligand_gt_file = os.path.join(ground_truth_dir, file[:-ll] + '_l_b' + '_COMPLEX.pdb')
-            receptor_model_file = os.path.join(input_dir, file[:-ll] + '_r_b' + '_ATTRACT.pdb')
-            receptor_gt_file = os.path.join(ground_truth_dir, file[:-ll] + '_r_b' + '_COMPLEX.pdb')
-        #################################
-
-        elif method == 'hdock':
-            if not file.endswith('_l_b_HDOCK.pdb'):
-                continue
-            ll = len('_l_b_HDOCK.pdb')
-            ligand_model_file = os.path.join(input_dir, file[:-ll] + '_l_b' + '_HDOCK.pdb')
-            receptor_model_file = os.path.join(input_dir, file[:-ll] + '_r_b' + '_HDOCK.pdb')
-            if dataset == 'db5':
-                ligand_gt_file = os.path.join(ground_truth_dir, file[:-ll] + '_l_b' + '_COMPLEX.pdb')
-                receptor_gt_file = os.path.join(ground_truth_dir, file[:-ll] + '_r_b' + '_COMPLEX.pdb')
-            elif dataset == 'dips':
-                ligand_gt_file = os.path.join(ground_truth_dir, file[:-ll] + '.pdb_0.dill_l_b' + '_COMPLEX.pdb')
-                receptor_gt_file = os.path.join(ground_truth_dir, file[:-ll] + '.pdb_0.dill_r_b' + '_COMPLEX.pdb')
-
-        #################################
-        elif method == 'geodock' or method == 'patchdock':
-            if not file.endswith('_l_b' + '.pdb'):
-                continue
-            ll = len('_l_b' + '.pdb')
-            ligand_model_file = os.path.join(input_dir, file[:-ll] + '_l_b' + '.pdb')
-            ligand_gt_file = os.path.join(ground_truth_dir, file[:-ll] + '_l_b' + '_COMPLEX.pdb')
-            receptor_model_file = os.path.join(input_dir, file[:-ll] + '_r_b' + '.pdb')
-            receptor_gt_file = os.path.join(ground_truth_dir, file[:-ll] + '_r_b' + '_COMPLEX.pdb')
-        else:
-
-            if not file.endswith('_l_b_' + method.upper() + '.pdb'):
-                continue
-            # if not file.endswith('_l_b' + '.pdb'):
-            #     continue
-            ll = len('_l_b_' + method.upper() + '.pdb')
-            # ll = len('_l_b' + '.pdb')
-            ligand_model_file = os.path.join(input_dir, file[:-ll] + '_l_b_' + method.upper() + '.pdb')
-            # ligand_model_file = os.path.join(input_dir, file[:-ll] + '_l_b' + '.pdb')
-            # ligand_model_file = os.path.join(ground_truth_dir, file[:-ll] + '_l_b' + '_COMPLEX.pdb')
-            ligand_gt_file = os.path.join(ground_truth_dir, file[:-ll] + '_l_b' + '_COMPLEX.pdb')
-            receptor_model_file = os.path.join(ground_truth_dir, file[:-ll] + '_r_b' + '_COMPLEX.pdb')
-            # receptor_model_file = os.path.join(input_dir, file[:-ll] + '_r_b' + '.pdb')
-            receptor_gt_file = os.path.join(ground_truth_dir, file[:-ll] + '_r_b' + '_COMPLEX.pdb')
+        if not file.endswith('_l_b_' + method.upper() + '.pdb'):
+            continue
+        ll = len('_l_b_' + method.upper() + '.pdb')
+        ligand_model_file = os.path.join(input_dir, file[:-ll] + '_l_b_' + method.upper() + '.pdb')
+        ligand_gt_file = os.path.join(ground_truth_dir, file[:-ll] + '_l_b' + '_COMPLEX.pdb')
+        receptor_model_file = os.path.join(ground_truth_dir, file[:-ll] + '_r_b' + '_COMPLEX.pdb')
+        receptor_gt_file = os.path.join(ground_truth_dir, file[:-ll] + '_r_b' + '_COMPLEX.pdb')
 
         num_test_files += 1
 
@@ -99,9 +69,6 @@ def compute_all_test_rmsd(dataset, method, data_frac=None):
 
         ligand_gt_coords = get_CA_coords(ligand_gt_file)
         receptor_gt_coords = get_CA_coords(receptor_gt_file)
-
-        # print(ligand_gt_coords.shape, ligand_model_coords.shape)
-        # print(ligand_model_file)
 
         assert ligand_model_coords.shape[0] == ligand_gt_coords.shape[0]
         assert receptor_model_coords.shape[0] == receptor_gt_coords.shape[0]
@@ -119,12 +86,6 @@ def compute_all_test_rmsd(dataset, method, data_frac=None):
         crmsd, ligand_rmsd = meter.update_rmsd(torch.Tensor(ligand_model_coords), torch.Tensor(receptor_model_coords),
                           torch.Tensor(ligand_gt_coords), torch.Tensor(receptor_gt_coords))
         
-        """
-        if crmsd > 50:
-            # remove the sample if the crmsd is too large
-            num_test_files -= 1
-            continue
-        """
         irmsd, _ = Irmsd_meter.update_rmsd(torch.Tensor(ligand_model_pocket_coors), torch.Tensor(receptor_model_pocket_coors),
                                 torch.Tensor(ligand_gt_pocket_coors), torch.Tensor(receptor_gt_pocket_coors))
         fnat = fnat_meter.update_Fnat(torch.Tensor(ligand_model_coords), torch.Tensor(receptor_model_coords),
@@ -143,7 +104,6 @@ def compute_all_test_rmsd(dataset, method, data_frac=None):
     print('irmsd = ', str(all_irmsd))
     print('dockq = ', str(all_dockq))
     print('success rate:', rate / num_test_files)
-    # print('all file:', all_files)
 
 
     complex_rmsd_median, _ = meter.summarize_with_std(reduction_rmsd='median')
@@ -162,4 +122,10 @@ def compute_all_test_rmsd(dataset, method, data_frac=None):
 
 ## Run this to get the results from our paper.
 if __name__ == "__main__":
-    compute_all_test_rmsd('dips_het', 'smp', 0.2) # dataset: db5 or dips; methods: equidock, attract, patchdock, cluspro, hdock
+
+    config_args = parse_args()
+    dataset = config_args.dataset
+    method_name = config_args.method_name
+    data_frac = config_args.data_frac
+
+    compute_all_test_rmsd(dataset, method_name, data_frac)

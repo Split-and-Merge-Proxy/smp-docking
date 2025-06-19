@@ -32,7 +32,6 @@ def log(*pargs):
         pprint(*pargs)
 
 
-
 # Ligand residue locations: a_i in R^3. Receptor: b_j in R^3
 # Ligand: G_l(x) = -sigma * ln( \sum_i  exp(- ||x - a_i||^2 / sigma)  ), same for G_r(x)
 # Ligand surface: x such that G_l(x) = surface_ct

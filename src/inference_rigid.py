@@ -1,5 +1,5 @@
 import os
-
+import argparse
 import torch
 
 os.environ['DGLBACKEND'] = 'pytorch'
@@ -13,16 +13,17 @@ from src.utils.ot_utils import *
 from src.utils.zero_copy_from_numpy import *
 from src.utils.io import create_dir
 
-
-dataset = 'dips_het'
-method_name = 'smp'
 remove_clashes = False  # Set to true if you want to remove (most of the) steric clashes. Will increase run time.
-if remove_clashes:
-    method_name = method_name + '_no_clashes'
-    print('Inference with postprocessing to remove clashes')
-else:
-    print('Inference without any postprocessing to remove clashes')
 
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--method_name', type=str, choices=['deepinter', 'smp'], default="none", help="the name of method")
+    parser.add_argument('--dataset', type=str, choices=['dips_het'], default="none", help="the name of dataset")
+    parser.add_argument('--ckpt_path', type=str, default="none", help="checkpoint path")
+
+    config_args = parser.parse_args()
+
+    return config_args
 
 # Ligand residue locations: a_i in R^3. Receptor: b_j in R^3
 # Ligand: G_l(x) = -sigma * ln( \sum_i  exp(- ||x - a_i||^2 / sigma)  ), same for G_r(x)
@@ -73,7 +74,6 @@ def get_rot_mat(euler_angles):
     return R
 
 
-
 def get_residues(pdb_filename):
     df = PandasPdb().read_pdb(pdb_filename).df['ATOM']
     df.rename(columns={'chain_id': 'chain', 'residue_number': 'residue', 'residue_name': 'resname',
@@ -83,24 +83,18 @@ def get_residues(pdb_filename):
 
 
 
-def main(args):
+def main(args, config):
 
-    ## Pre-trained models.
-    # if dataset == 'dips_het':
-    #     checkpoint_filename = 'equidock_dips_het_0.1'
-    #     checkpoint_filename = 'checkpts/' + checkpoint_filename + '/dips_het_model_best.pth'
-    # elif dataset == 'real_world':
-    #     checkpoint_filename = 'smp_finetune_best_op'
-    #     checkpoint_filename = 'checkpts/' + checkpoint_filename + '/dips_het_model_best.pth'
+    dataset, method_name = config.dataset, config.method_name
 
-    if method_name == 'equidock':
-        checkpoint_filename = 'equidock_dips_het_0.4'
-        checkpoint_filename = 'checkpts/' + checkpoint_filename + '/dips_het_model_best.pth'
-    elif method_name == 'smp':
-        checkpoint_filename = 'smp_finetune_dips_het_0.2'
-        checkpoint_filename = 'checkpts/' + checkpoint_filename + '/dips_het_model_best.pth'
+    # checkpoint_filename = os.path.join(config.ckpt_dir, '/dips_het_model_best.pth')
+    checkpoint_filename = config.ckpt_path
 
-    print('checkpoint_filename = ', checkpoint_filename)
+    if remove_clashes:
+        method_name = method_name + '_no_clashes'
+        print('Inference with postprocessing to remove clashes')
+    else:
+        print('Inference without any postprocessing to remove clashes')
 
     checkpoint = torch.load(checkpoint_filename, map_location=args['device'])
 
@@ -122,8 +116,6 @@ def main(args):
     print(args['layer_norm'], args['layer_norm_coors'], args['final_h_layer_norm'], args['intersection_loss_weight'])
     print('divide_coors_dist = ', args['divide_coors_dist'])
 
-
-
     time_list = []
 
     input_dir = './test_sets_pdb/' + dataset + '_test_random_transformed/random_transformed/'
@@ -143,7 +135,6 @@ def main(args):
         out_filename = file[:-ll] + '_l_b' + '_' + method_name.upper() + '.pdb'
 
         print(' inference on file = ', ligand_filename)
-
 
         start = dt.now()
 
@@ -251,4 +242,5 @@ def main(args):
 
 
 if __name__ == "__main__":
-    main(args)
+    config_args = parse_args()
+    main(args, config_args)

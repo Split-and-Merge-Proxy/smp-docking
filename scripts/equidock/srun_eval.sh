@@ -17,4 +17,4 @@ srun -p ${PARTITION} \
     --ntasks-per-node=${GPUS_PER_NODE} \
     --cpus-per-task=${CPUS_PER_TASK} \
     --kill-on-bad-exit=1 \
-    python -m src.test_all_methods.eval_pdb_outputset
+    python -m src.test_all_methods.eval_pdb_outputset --dataset dips_het --method_name equidock --data_frac 1.0

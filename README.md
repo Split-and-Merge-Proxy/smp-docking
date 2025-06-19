@@ -1,5 +1,5 @@
 # SMP-docking 
-This repository is tor rigid protein-protein docking task.
+This repository is for the rigid protein-protein docking task.
 
 ## 1. Environment Setup
 
