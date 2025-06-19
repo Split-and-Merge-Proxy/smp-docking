@@ -125,18 +125,6 @@ if torch.cuda.is_available():
     torch.cuda.set_device(0)
 
 
-
-# if args['continue_train_model'] != '':
-#     print('Continue training the DIPS model ', args['continue_train_model'])
-#     args['continue_train_model'] = 'checkpts/' + args['continue_train_model'] + '/dips_model_best.pth'
-#     checkpoint = torch.load(args['continue_train_model'], map_location=args['device'])
-#     for k, v in checkpoint['args'].items():
-#         if 'continue_train_model' not in k:
-#             args[k] = v
-#     args['hyper_search'] = False
-
-
-
 ########################################
 def get_model_name(args):
 
@@ -149,152 +137,10 @@ def get_model_name(args):
             model_name = method + '_finetune' + '_' + data_name + '_' + str(args['data_fraction'])
     else:
         model_name = method + '_' + data_name + '_' + str(args['data_fraction'])
-    """
-    params_to_plot = {}
-    # params_to_plot['data'] = ''
-    # params_to_plot['data_fraction'] = 'f'
-    #
-    # params_to_plot['graph_nodes'] = 'gn'
-    # params_to_plot['pocket_cutoff'] = 'pockC'
 
-    # params_to_plot['graph_cutoff'] = 'cut'
-    # params_to_plot['graph_max_neighbor'] = 'mxNE'
-    # params_to_plot['graph_residue_loc_is_alphaC'] = 'aC'
-
-    # params_to_plot['lr'] = 'lr'
-    # params_to_plot['clip'] = 'cl'
-    params_to_plot['dropout'] = 'drp'
-    params_to_plot['w_decay'] = 'Wdec'
-    #
-
-    params_to_plot['intersection_loss_weight'] = 'ITS_lw'
-    # params_to_plot['intersection_sigma'] = 'sigma'
-    # params_to_plot['intersection_surface_ct'] = 'surf_ct'
-
-
-    # params_to_plot['nonlin'] = 'nonlin'
-    params_to_plot['iegmn_lay_hid_dim'] = 'Hdim'
-    params_to_plot['iegmn_n_lays'] = 'Nlay'
-    # params_to_plot['residue_emb_dim'] = 'Rdim'
-    params_to_plot['shared_layers'] = 'shrdLay'
-
-
-    # params_to_plot['cross_msgs'] = 'Xmsgs'
-    # params_to_plot['use_dist_in_layers'] = 'DistInLys'
-    # params_to_plot['use_edge_features_in_gmn'] = 'EdgeFeas'
-    params_to_plot['use_mean_node_features'] = 'SURFfs'
-
-    params_to_plot['layer_norm'] = 'ln'
-    params_to_plot['layer_norm_coors'] = 'lnX'
-    params_to_plot['final_h_layer_norm'] = 'Hnrm'
-
-    # params_to_plot['rot_model'] = 'rotM'
-    params_to_plot['num_att_heads'] = 'NattH'
-
-
-    params_to_plot['skip_weight_h'] = 'skH'
-    params_to_plot['x_connection_init'] = 'xConnI'
-
-    params_to_plot['leakyrelu_neg_slope'] = 'LkySl'
-
-    params_to_plot['pocket_ot_loss_weight'] = 'pokOTw'
-
-    params_to_plot['divide_coors_dist'] = 'divXdist'
-
-
-    def tostr(v):
-        if type(v) is bool and v == True:
-            return 'T'
-        elif type(v) is bool and v == False:
-            return 'F'
-        return str(v)
-
-    sss = list(params_to_plot.keys()) # preserves order
-    model_name = 'EQUIDOCK__'
-    for s in sss:
-        assert s in args.keys()
-        if len(params_to_plot[s].strip()) > 0:
-            model_name += params_to_plot[s].strip() + '_' + tostr(args[s.strip()]) + '#'
-        else:
-            model_name += tostr(args[s.strip()]) + '#'
-    """
     assert len(model_name) <= 255
     return model_name
 ########################################
-
-
-"""
-## Some hyperaparameter search example
-if args['hyper_search']:
-    model_was_solved = True
-    num_tries = 0
-    while model_was_solved:
-        num_tries += 1
-        if num_tries > 100:
-            print('No hyperparams available !! Exiting ... ')
-            sys.exit(1)
-
-        args['data'] = 'dips'
-        args['data_fraction'] = 1.
-        args['split'] = 0
-
-
-        args['graph_nodes'] = 'residues'
-        args['pocket_cutoff'] = 8.
-        args['graph_cutoff'] = 30.
-        args['graph_max_neighbor'] = 10
-        args['graph_residue_loc_is_alphaC'] = True
-
-
-        args['clip'] = 100. # random.choices([1., 100.], weights=(0.25, 0.75), k=1)[0]
-        args['dropout'] = random.choices([0, 0.25], weights=(0.5, 0.5), k=1)[0]
-        args['w_decay'] = random.choices([1e-4, 1e-3], weights=(0.2, 0.2), k=1)[0]
-
-        args['intersection_loss_weight'] = random.choices([10., 1.], weights=(0.6, 0.6), k=1)[0]
-        ###### ground truth complexes have: sigma_25.0#surf_ct_10.0 --> intersection loss 0.8626
-        args['intersection_sigma'] = 25.
-        args['intersection_surface_ct'] = 10.
-
-
-        args['layer_norm'] = 'LN' # random.choices(['0', 'LN'], weights=(0., 0.1), k=1)[0]
-        args['layer_norm_coors'] = '0' #random.choices(['0', 'LN'], weights=(0.5, 0.1), k=1)[0]
-        args['final_h_layer_norm'] = '0' # random.choices(['0', 'LN'], weights=(0.1, 0.1), k=1)[0]
-
-
-        args['rot_model'] = 'kb_att'
-        args['num_att_heads'] = 50 # random.choices([25, 50, 100], weights=(0.2, 0.2, 0.2), k=1)[0]
-
-
-        args['pocket_ot_loss_weight'] = random.choices([10., 1.], weights=(0.3, 0.3), k=1)[0]
-
-
-        args['nonlin'] = 'lkyrelu'
-        args['leakyrelu_neg_slope'] = 0.01 # random.choice([0.1, 0.01])
-
-        args['iegmn_lay_hid_dim'] = random.choice([64])
-        args['iegmn_n_lays'] = random.choice([5, 8])
-        args['residue_emb_dim'] = args['iegmn_lay_hid_dim']
-
-        args['shared_layers'] = random.choices([True, False], weights=(0.1, 0.1), k=1)[0]
-
-        args['divide_coors_dist'] = random.choices([True, False], weights=(0, 1), k=1)[0]
-
-        args['cross_msgs'] = True
-        args['use_dist_in_layers'] = True
-        args['use_edge_features_in_gmn'] = True
-        args['use_mean_node_features'] = True
-        args['noise_decay_rate'] = 0.
-        args['noise_initial'] = 0.
-
-        args['skip_weight_h'] = random.choice([0.75, 0.5])
-        args['x_connection_init'] = random.choices([0., 0.25], weights=(10, 1), k=1)[0]
-
-        assert args['noise_decay_rate'] < 1., 'Noise has to decrease to 0, decay rate cannot be >= 1.'
-
-
-        bbanner = get_model_name(args)
-        model_was_solved = os.path.exists(os.path.join('stdouterr/', bbanner + ".txt"))
-"""
 
 
 assert args['noise_decay_rate'] < 1., 'Noise has to decrease to 0, decay rate cannot be >= 1.'

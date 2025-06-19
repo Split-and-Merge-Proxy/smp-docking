@@ -12,18 +12,17 @@ pip install -r requirements.txt
 ```
 
 ## 2. Data Preparation
-You can download the data from [SMP - Harvard Dataverse](https://doi.org/10.7910/DVN/22AUPR) and place it in the `./data` folder.
+You can download the docking data from [SMP - Harvard Dataverse](https://doi.org/10.7910/DVN/22AUPR) and place it in the `./cache` folder.
 
 ## 3. Training (Optional)
 ### EquiDock
 ```bash
 # Pytorch DDP
 bash ./scripts/equidock/dist_train.sh
-
 # Slurm 
-bash ./scripts/deepinter/slurm_train.sh
+bash ./scripts/equidock/slurm_train.sh
 ```
-**Note:** you can change the `data_dir`, `data_dir_list`, and `output_dir` to your own desired directory.
+**Note:** you can change the `data_fraction` to determine the amount of training data.
 
 ### SMP
 ```bash
@@ -43,9 +42,10 @@ bash ./script/smp/slurm_finetune.sh
 ### EquiDock
 ```bash
 # Pytorch launcher
-bash ./scripts/deepinter/dist_test.sh
+bash ./scripts/equidock/dist_test.sh
 # Slurm launcher
-bash ./scripts/deepinter/slurm_test.sh
+bash ./scripts/equidock/slurm_inference.sh
+bash ./scripts/equidock/slurm_eval.sh
 ```
 
 ### SMP
@@ -53,7 +53,8 @@ bash ./scripts/deepinter/slurm_test.sh
 # Pytorch launcher
 bash ./scripts/smp/dist_test.sh
 # Slurm launcher
-bash ./scripts/smp/slurm_test.sh
+bash ./scripts/smp/slurm_inference.sh
+bash 
 ```
 
 
