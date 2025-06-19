@@ -22,7 +22,7 @@ bash ./scripts/equidock/dist_train.sh
 # Slurm 
 bash ./scripts/equidock/slurm_train.sh
 ```
-**Note:** you can change the `data_fraction` to determine the amount of training data.
+**Note:** you can change the `data_fraction` in the Shell file to determine the amount of training data.
 
 ### SMP
 ```bash
@@ -34,7 +34,7 @@ bash ./scripts/smp/dist_finetune.sh
 bash ./scripts/smp/slurm_pretrain.sh
 bash ./script/smp/slurm_finetune.sh
 ```
-**Note:** you can change the `data_dir`, `data_dir_list`, `resume_checkpoint`, and `output_dir` to your own desired directory.
+**Note:** you can change the `data_fraction` in the Shell file to determine the amount of fine-tuning data (pre-training data does not support yet) and `resume_ckpt` to your own directory.
 
 
 
@@ -42,7 +42,8 @@ bash ./script/smp/slurm_finetune.sh
 ### EquiDock
 ```bash
 # Pytorch launcher
-bash ./scripts/equidock/dist_test.sh
+bash ./scripts/equidock/dist_inference.sh
+bash ./scripts/equidock/dist_eval.sh
 # Slurm launcher
 bash ./scripts/equidock/slurm_inference.sh
 bash ./scripts/equidock/slurm_eval.sh
@@ -51,12 +52,12 @@ bash ./scripts/equidock/slurm_eval.sh
 ### SMP
 ```bash
 # Pytorch launcher
-bash ./scripts/smp/dist_test.sh
+bash ./scripts/smp/dist_inference.sh
+bash ./scripts/smp/dist_eval.sh
 # Slurm launcher
 bash ./scripts/smp/slurm_inference.sh
-bash 
+bash ./scripts/smp/slurm_eval.sh
 ```
-
 
 ## Acknowledges
 - [EquiDock](https://github.com/octavian-ganea/equidock_public)

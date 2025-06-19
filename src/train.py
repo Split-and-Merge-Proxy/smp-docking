@@ -283,12 +283,6 @@ def main(args):
 def train(args, tb_logger, train_loader, val_loader, test_loader, model, loss_fn_coors):
     tb_banner = args['data'] + '_'
 
-    """
-    args['cache_path'] = './cache/' + args['data'] + '_' + args['graph_nodes'] + '_maxneighbor_' + \
-                         str(args['graph_max_neighbor']) + '_cutoff_' + str(args['graph_cutoff']) + \
-                         '_pocketCut_' + str(args['pocket_cutoff']) + '/'
-    args['cache_path'] = os.path.join(args['cache_path'], 'cv_' + str(args['split']))
-    """
     stopper = EarlyStopping(mode='lower', patience=args['patience'], filename=args['checkpoint_filename'], log=log)
 
     optimizer = torch.optim.Adam(model.parameters(), lr=args['lr'], weight_decay=args['w_decay'])
@@ -325,8 +319,6 @@ def train(args, tb_logger, train_loader, val_loader, test_loader, model, loss_fn
         tb_logger.add_scalar('sqrt_ot_loss/' + tb_banner + 'train', min(100., math.sqrt(train_avg_loss_ot)), epoch)
         tb_logger.add_scalar('intersection_loss/' + tb_banner + 'train', train_avg_loss_intersection, epoch)
         # tb_logger.add_scalar('perc_clips/' + tb_banner + 'train', percentage_clips, epoch)
-
-
 
         pretty_print_stats('TRAIN', epoch, args['num_epochs'],
                            train_complex_rmsd_mean, train_complex_rmsd_median,
@@ -411,8 +403,6 @@ def train(args, tb_logger, train_loader, val_loader, test_loader, model, loss_fn
                        test_avg_loss_ot, test_avg_loss_intersection, log)
 
     return model
-
-
 
 
 if __name__ == "__main__":
