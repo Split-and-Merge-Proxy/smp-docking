@@ -12,7 +12,7 @@ pip install -r requirements.txt
 ```
 
 ## 2. Data Preparation
-You can download the docking data from [SMP - Harvard Dataverse](https://doi.org/10.7910/DVN/22AUPR) and place it in the `./cache` folder.
+You can download the docking data from [SMP - Harvard Dataverse](https://doi.org/10.7910/DVN/0QURCP) and place it in the `./cache` folder.
 
 ## 3. Training (Optional)
 ### EquiDock
