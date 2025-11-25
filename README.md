@@ -12,51 +12,38 @@ pip install -r requirements.txt
 ```
 
 ## 2. Data Preparation
-You can download the docking data from [SMP - Harvard Dataverse](https://doi.org/10.7910/DVN/0QURCP) and place it in the `./cache` folder.
+You can download the docking data (`dips_het_residues_maxneighbor_10_cutoff_30.0_pocketCut_8.0.zip` for DIPS-Het dataset and `pseudo_dimer_residues_maxneighbor_10_cutoff_30.0_pocketCut_8.0.zip` for pseudo-dimer pre-training dataset) from [SMP - Harvard Dataverse](https://doi.org/10.7910/DVN/0QURCP) and place it in the `./cache` folder.
 
 ## 3. Training (Optional)
 ### EquiDock
 ```bash
-# Pytorch DDP
-bash ./scripts/equidock/dist_train.sh
-# Slurm 
-bash ./scripts/equidock/slurm_train.sh
+bash ./scripts/equidock_train.sh
 ```
 **Note:** you can change the `data_fraction` in the Shell file to determine the amount of training data.
 
 ### SMP
 ```bash
-# Pytorch launcher
-bash ./scripts/smp/dist_pretrain.sh
-bash ./scripts/smp/dist_finetune.sh
-
-# Slurm launcher
-bash ./scripts/smp/slurm_pretrain.sh
-bash ./script/smp/slurm_finetune.sh
+bash ./scripts/smp_pretrain.sh
+bash ./scripts/smp_finetune.sh
 ```
-**Note:** you can change the `data_fraction` in the Shell file to determine the amount of fine-tuning data (pre-training data does not support yet) and `resume_ckpt` to your own directory.
+**Note:** you can change the `data_fraction` in the Shell file to determine the amount of fine-tuning data (pre-training data does not support yet) and `resume_ckpt` in the Shell file to select the pre-trained ckpt to your own path.
 
 
 
 ## 4. Evaluations
-### EquiDock
-```bash
-# Pytorch launcher
-bash ./scripts/equidock/dist_inference.sh
-bash ./scripts/equidock/dist_eval.sh
-# Slurm launcher
-bash ./scripts/equidock/slurm_inference.sh
-bash ./scripts/equidock/slurm_eval.sh
-```
 
-### SMP
 ```bash
-# Pytorch launcher
-bash ./scripts/smp/dist_inference.sh
-bash ./scripts/smp/dist_eval.sh
-# Slurm launcher
-bash ./scripts/smp/slurm_inference.sh
-bash ./scripts/smp/slurm_eval.sh
+bash ./scripts/test.sh
+```
+**Note:** You can change the `method_name` in the `test.sh` to determine whether eval the EquiDock or SMP method, and change the `ckpt_path` in the `test.sh` to its corresponding ckpt path.
+
+## 5. Reproducing the Results Reported in the Manuscript
+To reproduce the results reported in our manuscript, first download the processed test set (`dips_het_residues_maxneighbor_10_cutoff_30.0_pocketCut_8.0.zip`) from https://doi.org/10.7910/DVN/0QURCP and unzip them.
+
+Then, change the data_dir in the test.sh script to point to your local path for processed test sets, and run the following command:
+
+```bash
+bash ./scripts/test.sh
 ```
 
 ## Acknowledges

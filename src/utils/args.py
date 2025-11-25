@@ -25,7 +25,7 @@ parser.add_argument('-method', type=str, required=False, default='equidock', cho
 parser.add_argument('-resume_ckpt', type=str, required=False, default=None, help='resume checkpoint')
 
 # Data
-parser.add_argument('-data', type=str, required=False, default='dips_het', choices=['dips_het', 'pseudo_multi'])
+parser.add_argument('-data', type=str, required=False, default='dips_het', choices=['dips_het', 'pseudo_dimer'])
 parser.add_argument('-data_fraction', type=float, default=1., required=False)
 parser.add_argument('-split', type=int, required=False, default=0, help='cross valid split')
 parser.add_argument('-worker', type=int, default=5, required=False, help="Number of worker for data loader.")
