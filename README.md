@@ -40,7 +40,7 @@ bash ./scripts/test.sh
 ## 5. Reproducing the Results Reported in the Manuscript
 To reproduce the results reported in our manuscript, first download the processed test set (`dips_het_residues_maxneighbor_10_cutoff_30.0_pocketCut_8.0.zip`) from https://doi.org/10.7910/DVN/0QURCP and unzip it.
 
-Then, change the `method_name` in the test.sh script to point to your local path for processed test sets and `ckpt_path` for the ckpt path, and run the following command:
+Then, change the `method_name` in the `test.sh` to determine whether eval the EquiDock or SMP method. And we have already provided the ckpts for EquiDock and SMP in the `./checkpts` folder, you can download them and change the `ckpt_path` in the `test.sh` to your own local path, and run the following command:
 
 ```bash
 bash ./scripts/test.sh
@@ -52,14 +52,27 @@ The expected results are shown below.
 ||   | Complex RMSD |  |  | Interface RMSD |  |  |
 |----------|----------|----------|----------|----------|----------|----------|----------|
 |Method| Median  | Mean | Std| Median | Mean | Std | Success Rate |
-|EquiDock|  |  |   |  |  |  |  |
-|SMP|   |   |   |  |  |  | |
+|EquiDock| 8.63 | 12.00 | 10.18  | 8.67 | 10.43 | 8.72 | 30% |
+|SMP| 8.26  | 10.77  | 9.21  | 8.19 | 9.46 | 7.87 | 35%|
+
+## 6. Infernce on your custom data
+We have already uploaded the trained weights of SMP in the ./ckpts, you can directly download it and place it in your own directory. Additionally, we offer a example in `./example` to demonstrate how to inference in your own custom data, as run the following command:
+
+```bash
+python -u custom_inference.py
+```
+The ouput will be saved to the `./save` with a pair of docked PDB files.
+**Note:** Currrent deep learning-based docking method cannot achieve satifisy results, we recommand use this kind of method with caution.
+
+
+
 
 ## Acknowledges
 - [EquiDock](https://github.com/octavian-ganea/equidock_public)
 - [EBMDock](https://github.com/wuhuaijin/EBMDock)
 - [HMR](https://github.com/bytedance/HMR)
 - [DIPS](https://github.com/drorlab/DIPS)
+
 
 
 If you have any questions, please don't hesitate to contact me through [cs.dh97@gmail.com](cs.dh97@gmail.com)
