@@ -12,6 +12,47 @@ from src.utils.zero_copy_from_numpy import *
 from src.utils.io import create_dir
 
 
+def G_fn(protein_coords, x, sigma):
+    # protein_coords: (n,3) ,  x: (m,3), output: (m,)
+    e = torch.exp(- torch.sum((protein_coords.view(1, -1, 3) - x.view(-1,1,3)) ** 2, dim=2) / float(sigma) )  # (m, n)
+    return - sigma * torch.log(1e-3 +  e.sum(dim=1) )
+
+
+def compute_body_intersection_loss(model_ligand_coors_deform, bound_receptor_repres_nodes_loc_array, sigma = 25., surface_ct=10.):
+    assert model_ligand_coors_deform.shape[1] == 3
+    loss = torch.mean( torch.clamp(surface_ct - G_fn(bound_receptor_repres_nodes_loc_array, model_ligand_coors_deform, sigma), min=0) ) + \
+           torch.mean( torch.clamp(surface_ct - G_fn(model_ligand_coors_deform, bound_receptor_repres_nodes_loc_array, sigma), min=0) )
+    return loss
+
+def get_rot_mat(euler_angles):
+    roll = euler_angles[0]
+    yaw = euler_angles[1]
+    pitch = euler_angles[2]
+
+    tensor_0 = torch.zeros([])
+    tensor_1 = torch.ones([])
+    cos = torch.cos
+    sin = torch.sin
+
+    RX = torch.stack([
+        torch.stack([tensor_1, tensor_0, tensor_0]),
+        torch.stack([tensor_0, cos(roll), -sin(roll)]),
+        torch.stack([tensor_0, sin(roll), cos(roll)])]).reshape(3, 3)
+
+    RY = torch.stack([
+        torch.stack([cos(pitch), tensor_0, sin(pitch)]),
+        torch.stack([tensor_0, tensor_1, tensor_0]),
+        torch.stack([-sin(pitch), tensor_0, cos(pitch)])]).reshape(3, 3)
+
+    RZ = torch.stack([
+        torch.stack([cos(yaw), -sin(yaw), tensor_0]),
+        torch.stack([sin(yaw), cos(yaw), tensor_0]),
+        torch.stack([tensor_0, tensor_0, tensor_1])]).reshape(3, 3)
+
+    R = torch.mm(RZ, RY)
+    R = torch.mm(R, RX)
+    return R
+
 def get_nodes_coors_numpy(filename, all_atoms=False):
     df = PandasPdb().read_pdb(filename).df['ATOM']
     if not all_atoms:
