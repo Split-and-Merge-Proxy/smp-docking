@@ -52,7 +52,6 @@ The expected results are shown below.
 ||   | Complex RMSD |  |  | Interface RMSD |  |  |
 |----------|----------|----------|----------|----------|----------|----------|----------|
 |Method| Median  | Mean | Std| Median | Mean | Std | Success Rate |
-|----------|----------|----------|----------|----------|----------|----------|----------|
 |EquiDock|  |  |   |  |  |  |  |
 |SMP|   |   |   |  |  |  | |
 
