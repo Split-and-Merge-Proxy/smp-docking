@@ -76,6 +76,15 @@ def main():
     output_dir = './save'
 
     ckpt = torch.load(ckpt_file_path, map_location=args['device'])
+
+    for k,v in ckpt['args'].items():
+        args[k] = v
+
+    args['debug'] = False
+    args['device'] = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
+    args['n_jobs'] = 1
+    args['worker'] = 8
+
     model = create_model(args, log)
     model.load_state_dict(checkpoint['state_dict'])
     param_count(model, log)
