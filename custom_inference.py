@@ -71,9 +71,12 @@ def main():
 
     ligand_file_path = './example/EE_4EEC_B_AC.pdb_0.dill_l_b.pdb'
     receptor_file_path = './example/EE_4EEC_B_AC.pdb_0.dill_r_b.pdb'
-    ckpt_file_path = './checkpts/smp/dips_het_model_best.pth'
+    ckpt_file_path = './server_ckpts/smp/dips_het_model_best.pth'
     remove_clashes = False
     output_dir = './save'
+
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
 
     ckpt = torch.load(ckpt_file_path, map_location=args['device'])
 
@@ -85,8 +88,11 @@ def main():
     args['n_jobs'] = 1
     args['worker'] = 8
 
+    # print(args)
+    # import pdb; pdb.set_trace()
+
     model = create_model(args, log)
-    model.load_state_dict(checkpoint['state_dict'])
+    model.load_state_dict(ckpt['state_dict'])
     param_count(model, log)
     model = model.to(args['device'])
     model.eval()
@@ -102,7 +108,7 @@ def main():
     unbound_predic_receptor, \
     bound_ligand_repres_nodes_loc_clean_array,\
     bound_receptor_repres_nodes_loc_clean_array = preprocess_unbound_bound(
-        get_residues(ligand_filename), get_residues(receptor_filename),
+        get_residues(ligand_file_path), get_residues(receptor_file_path),
         graph_nodes=args['graph_nodes'], pos_cutoff=args['pocket_cutoff'], inference=True)
 
     ligand_graph, receptor_graph = protein_to_graph_unbound_bound(unbound_predic_ligand,
@@ -115,6 +121,9 @@ def main():
                                                                     one_hot=False,
                                                                     residue_loc_is_alphaC=args['graph_residue_loc_is_alphaC']
                                                                     )
+
+
+    import pdb; pdb.set_trace()
 
     if args['input_edge_feats_dim'] < 0:
         args['input_edge_feats_dim'] = ligand_graph.edata['he'].shape[1]
@@ -174,7 +183,7 @@ def main():
     ppdb_ligand.df['ATOM'][['x_coord', 'y_coord', 'z_coord']] = ligand_th.detach().numpy() # unbound_ligand_new_pos
     unbound_ligand_save_file_path = os.path.join(output_dir, 'ligand.pdb')
     unbound_receptor_save_file_path = os.path.join(output_dir, 'receptor.pdb')
-    ppdb_ligand.to_pdb(path=unbound_ligand_save_filename, records=['ATOM'], gz=False)
+    ppdb_ligand.to_pdb(path=unbound_ligand_save_file_path, records=['ATOM'], gz=False)
     ppdb_receptor.to_pdb(path=unbound_receptor_save_file_path, records=['ATOM'], gz=False)
 
 
