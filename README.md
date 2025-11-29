@@ -19,14 +19,14 @@ You can download the docking data (`dips_het_residues_maxneighbor_10_cutoff_30.0
 ```bash
 bash ./scripts/equidock_train.sh
 ```
-**Note:** you can change the `data_fraction` in the Shell file to determine the amount of training data.
+**Note:** You can change the `data_fraction` in the shell script to control the amount of training data used.
 
 ### SMP
 ```bash
 bash ./scripts/smp_pretrain.sh
 bash ./scripts/smp_finetune.sh
 ```
-**Note:** you can change the `data_fraction` in the Shell file to determine the amount of fine-tuning data (pre-training data does not support yet) and the `resume_ckpt` in the Shell file to select the pre-trained ckpt to your own path.
+**Note:** You can change the `data_fraction` in the shell script to adjust the amount of data used for fine-tuning (pre-training currently does not support this option). You may also change the `resume_ckpt` field to specify the path to the pre-trained checkpoint.
 
 
 
@@ -35,12 +35,10 @@ bash ./scripts/smp_finetune.sh
 ```bash
 bash ./scripts/test.sh
 ```
-**Note:** You can change the `method_name` in the `test.sh` to determine whether eval the EquiDock or SMP method, and change the `ckpt_path` in the `test.sh` to its corresponding ckpt path.
+**Note:** You can change the `method_name` in `test.sh` to specify whether to evaluate the EquiDock or SMP method, and change the `ckpt_path` to point to the corresponding checkpoint.
 
 ## 5. Reproducing the Results Reported in the Manuscript
-To reproduce the results reported in our manuscript, first download the processed test set (`dips_het_residues_maxneighbor_10_cutoff_30.0_pocketCut_8.0.zip`) from https://doi.org/10.7910/DVN/0QURCP and unzip it.
-
-Then, change the `method_name` in the `test.sh` to determine whether eval the EquiDock or SMP method. And we have already provided the ckpts for EquiDock and SMP in the `./checkpts` folder, you can download them and change the `ckpt_path` in the `test.sh` to your own local path, and run the following command:
+To reproduce the results reported in our manuscript, we provide the test PDB files in the `test_sets_pdb` folder. You can change the `method_name` in `test.sh` to specify whether to evaluate the EquiDock or SMP method. We also provide the corresponding checkpoints for both methods in the `./checkpts` folder. After downloading them, update the `ckpt_path` in `test.sh` to your local path and then run the following command:
 
 ```bash
 bash ./scripts/test.sh
@@ -55,14 +53,15 @@ The expected results are shown below.
 |EquiDock| 8.63 | 12.00 | 10.18  | 8.67 | 10.43 | 8.72 | 30% |
 |SMP| 8.26  | 10.77  | 9.21  | 8.19 | 9.46 | 7.87 | 35%|
 
-## 6. Infernce on your custom data
-We have already uploaded the trained weights of SMP in the ./ckpts, you can directly download it and place it in your own directory. Additionally, we offer a example in `./example` to demonstrate how to inference in your own custom data, as run the following command:
+## 6. Infernce on Your Custom Data
+We have uploaded the trained SMP weights in the `./ckpts` directory. You can download them and place them in your preferred location. Additionally, we provide an example in `./example` that demonstrates how to perform inference on your own custom data. You can run it with:
 
 ```bash
 python -u custom_inference.py
 ```
-The ouput will be saved to the `./save` with a pair of docked PDB files.
-**Note:** Currrent deep learning-based docking method cannot achieve satifisy results, we recommand use this kind of method with caution.
+The output will be saved in the `./save` directory as a pair of docked PDB files.
+
+**Note:** Current deep learning–based docking methods may still struggle to produce satisfactory results. We recommend using such methods with caution.
 
 
 
